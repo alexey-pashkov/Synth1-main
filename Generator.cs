@@ -21,7 +21,7 @@ namespace Synth_1
     /// <summary>
     /// 
     /// </summary>
-    public delegate short Out();
+    public delegate double Out();
 
 
     /// <summary>
@@ -119,7 +119,7 @@ namespace Synth_1
         /// 
         /// </summary>
         /// <returns>short int</returns>
-        public short GetOut()
+        public double GetOut()
         {
             return dic[waveType]();
         }
@@ -143,54 +143,54 @@ namespace Synth_1
 
 
         #region Private methods
-        private short Sine()
+        private double Sine()
         {
             if (phaseAngle > 2 * Math.PI)
                 phaseAngle -= 2 * Math.PI;
 
             phaseAngle += 2 * Math.PI * Frequency / 44100;
 
-            return (short)(Amplitude * Math.Sin(phaseAngle));
+            return (Amplitude * Math.Sin(phaseAngle));
         }
 
-        private short Saw()
+        private double Saw()
         {
             if (phaseAngle > 2 * Math.PI)
                 phaseAngle -= 2 * Math.PI;
 
             phaseAngle += 2 * Math.PI * Frequency / 44100;
 
-            return (short)(2 * Amplitude * Math.Asin(Math.Sin(phaseAngle)) / Math.PI);
+            return (2 * Amplitude * Math.Asin(Math.Sin(phaseAngle)) / Math.PI);
         }
 
-        private short Square()
+        private double Square()
         {
             if (phaseAngle > 2 * Math.PI)
                 phaseAngle -= 2 * Math.PI;
 
             phaseAngle += 2 * Math.PI * Frequency / 44100;
 
-            return (short)(Amplitude * Math.Sign(Math.Sin(phaseAngle)));
+            return (Amplitude * Math.Sign(Math.Sin(phaseAngle)));
         }
 
-        private short Triangle()
+        private double Triangle()
         {
             if (phaseAngle > 2 * Math.PI)
                 phaseAngle -= 2 * Math.PI;
 
             phaseAngle += 2 * Math.PI * Frequency / 44100;
 
-            return (short)(2 * Amplitude * (Math.PI / (2 - Math.Atan(Math.Tan(phaseAngle)))) / Math.PI);
+            return (2 * Amplitude * (Math.PI / (2 - Math.Atan(Math.Tan(phaseAngle)))) / Math.PI);
         }
 
-        private short Noise()
+        private double Noise()
         {
             if (phaseAngle > 2 * Math.PI)
                 phaseAngle -= 2 * Math.PI;
 
             phaseAngle += 2 * Math.PI * Frequency / 44100;
 
-            return (short)(Amplitude * (short)new Random().Next());
+            return (Amplitude * (short)new Random().Next());
         }
         #endregion
     }

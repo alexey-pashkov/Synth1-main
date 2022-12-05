@@ -30,11 +30,15 @@ namespace Synth_1
         static Generator g1;
         static Generator g2;
         static WaveOut wo = new WaveOut();
+        IWaveProvider provider;
+        WaveFormat format;
 
 
         public MainWindow()
         {
             InitializeComponent();
+            format = new WaveFormat(44100, 16, 1);
+            
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(1);
             timer.Tick += Timer1_Tick;
@@ -72,6 +76,7 @@ namespace Synth_1
                 s.AddCarrier(g1);
                 //s.AddCarrier(g2);
                 synths[index] = s;
+                
             }
         }
 
@@ -98,9 +103,11 @@ namespace Synth_1
                 buf[i] = (byte)(v >> 8);
             }
 
-            IWaveProvider provider = new RawSourceWaveStream(new MemoryStream(buf), new WaveFormat(44100, 16, 1));
-            wo.Init(provider); 
-            wo.Play();
+            provider = new RawSourceWaveStream(new MemoryStream(buf), format);
+            wo.Init(provider);
+            if (provider != null)
+                wo.Play();
+
             // MixingSampleProvider mix = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
             // for (int i=0; i < synths.Length; i++) 
             // {
@@ -108,7 +115,7 @@ namespace Synth_1
             //     {
             //         byte[] b = FillBuffer(synths[i]);
             //         mix.AddMixerInput(new RawSourceWaveStream(new MemoryStream(b), new WaveFormat(44100, 16, 1)));
-                    
+
             //     }
             // }
 
@@ -116,9 +123,9 @@ namespace Synth_1
             // wo.Play();
         }
 
-        public static short Mix(short v1, short v2)
+        public static short Mix(double v1, double v2)
         {
-            int v = v1 + v2;
+            double v = v1 + v2;
             // if (v1 != 0 && v2 != 0)
             //     v = v / 2;
             if (v > short.MaxValue)
@@ -143,18 +150,6 @@ namespace Synth_1
                 g1.SetWave(wt);
             }
 
-        }
-
-        static byte[] FillBuffer(Synthezator s) 
-        {
-            byte[] buf = new byte[BUF_SIZE];
-            for (int i = 0; i < BUF_SIZE; i++)
-            {
-                short v = s.GetOut();
-                buf[i++] = (byte)(v & 0xFF);
-                buf[i] = (byte)(v >> 8);
-            }
-            return buf;
         }
 
 

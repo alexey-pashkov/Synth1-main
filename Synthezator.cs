@@ -27,16 +27,16 @@ namespace Synth_1
         /// 
         /// </summary>
         /// <param name="time"></param>
-        /// <returns>short int</returns>
-        public short GetOut()
+        /// <returns>double int</returns>
+        public double GetOut()
         {
-            short res = 0;
+            double res = 0;
             time++;
             for (int i = 0; i < carriers.Count; i++)
             {
                 res += carriers[i].GetOut();
             }
-            res = (short)(res / (short)carriers.Count);
+            res = (res / carriers.Count);
             return res;
         }
 
