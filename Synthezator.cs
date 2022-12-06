@@ -59,7 +59,19 @@ namespace Synth_1
             carriers.Add(carrier);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="freq"></param>
+        /// <returns></returns>
+        public void SetFreq(double freq)
+        {
+            foreach (Generator gen in carriers)
+            {
+                gen.SetFreq(freq);
+        
+            }
+        }
 
 
        

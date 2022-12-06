@@ -30,7 +30,8 @@ namespace Synth_1
         static Generator g1;
         static Generator g2;
         static WaveOut wo = new WaveOut();
-        IWaveProvider provider;
+        static WaveType wt;
+        static IWaveProvider provider;
         WaveFormat format;
 
 
@@ -70,11 +71,15 @@ namespace Synth_1
         {
             if (synths[index] == null)
             {
-                g1.SetFreq(freq);
-                g1.SetAmplitude(7000);
+                Generator g = new Generator();
+                g.SetFreq(freq);
+                g.SetAmplitude(8000);
+                g.SetWave(wt);
                 Synthezator s = new Synthezator();
-                s.AddCarrier(g1);
+                //s.AddCarrier(g1);
                 //s.AddCarrier(g2);
+                s.AddCarrier(g);
+                s.SetFreq(freq);
                 synths[index] = s;
                 
             }
@@ -83,13 +88,15 @@ namespace Synth_1
         public static void NoteOff(double freq, int index)
         {
             if (synths[index] != null)
+            {
                 synths[index] = null;
+            }
+                
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
             byte[] buf = new byte[BUF_SIZE];
-
             for (int i = 0; i < BUF_SIZE; i++)
             {   
                 short v = 0;
@@ -137,7 +144,7 @@ namespace Synth_1
 
         private void Osc1Wave_DropDownClosed(object sender, EventArgs e)
         {
-            WaveType wt;
+            
             if (Osc1Wave.SelectedIndex >= 0)
             {
                 Enum.TryParse(Osc1Wave.Text.ToString(), out wt);
@@ -155,7 +162,7 @@ namespace Synth_1
 
         private void Osc2Wave_DropDownClosed(object sender, EventArgs e)
         {
-            WaveType wt;
+           
             if (Osc2Wave.SelectedIndex >= 0)
             {
                 Enum.TryParse(Osc2Wave.Text.ToString(), out wt);

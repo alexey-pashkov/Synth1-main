@@ -59,7 +59,7 @@ namespace Synth_1
         /// <summary>
         /// 
         /// </summary>
-        private short Amplitude;  
+        private short Amplitude = 7000;  
 
         /// <summary>
         /// 
