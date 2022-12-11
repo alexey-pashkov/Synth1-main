@@ -26,22 +26,22 @@ namespace Synth_1
     {
         const int BUF_SIZE = 44100;
         ReadMidi midi = new ReadMidi();
-        static Synthezator[] synths = new Synthezator[128];
-        static Generator g1;
-        static Generator g2;
-        static WaveOut wo = new WaveOut();
+        static Synthesator[] synths = new Synthesator[128];
+        static WaveType wt;
+        private IWaveProvider provider;
+        WaveFormat format;
+        static int keysCount = 0;
 
 
         public MainWindow()
         {
             InitializeComponent();
+            format = new WaveFormat(44100, 16, 1);           
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(1);
             timer.Tick += Timer1_Tick;
             timer.Start();
             Devices.ItemsSource = midi.SelectDevice().Select(x => x.Value);
-            g1 = new Generator();
-            g2 = new Generator();
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
@@ -66,59 +66,57 @@ namespace Synth_1
         {
             if (synths[index] == null)
             {
-                g1.SetFreq(freq);
-                g1.SetAmplitude(7000);
-                Synthezator s = new Synthezator();
-                s.AddCarrier(g1);
-                //s.AddCarrier(g2);
+                //if (checkBox1)
+                Synthesator s = new Synthesator(freq);
+                Generator g = new Generator();
+                g.SetAmplitude(8000);
+                g.SetWave(wt);
+                s.AddCarrier(g);
                 synths[index] = s;
+                keysCount++;
+                
             }
         }
 
         public static void NoteOff(double freq, int index)
         {
             if (synths[index] != null)
+            {
                 synths[index] = null;
+                keysCount--;
+            }
+                
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            byte[] buf = new byte[BUF_SIZE];
-
-            for (int i = 0; i < BUF_SIZE; i++)
-            {   
-                short v = 0;
-                for (int j = 0; j < synths.Length; j++)
+            if (keysCount != 0)
+            {
+                byte[] buf = new byte[BUF_SIZE];
+                for (int i = 0; i < BUF_SIZE; i++)
                 {
-                    if (synths[j] != null)
-                        v = Mix(v,  synths[j].GetOut());
-                }             
-            
-                buf[i++] = (byte)(v & 0xFF);
-                buf[i] = (byte)(v >> 8);
+                    short v = 0;
+                    for (int j = 0; j < synths.Length; j++)
+                    {
+                        if (synths[j] != null)
+                            v = Mix(v, synths[j].GetOut());
+                    }
+
+                    buf[i++] = (byte)(v & 0xFF);
+                    buf[i] = (byte)(v >> 8);
+                }
+                MemoryStream buff_stream = new MemoryStream(buf);
+                provider = new RawSourceWaveStream(buff_stream, format);
+                WaveOutEvent wo = new WaveOutEvent();
+                wo.Init(provider);
+                if (provider != null)
+                    wo.Play();
             }
-
-            IWaveProvider provider = new RawSourceWaveStream(new MemoryStream(buf), new WaveFormat(44100, 16, 1));
-            wo.Init(provider); 
-            wo.Play();
-            // MixingSampleProvider mix = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
-            // for (int i=0; i < synths.Length; i++) 
-            // {
-            //     if (synths[i] != null) 
-            //     {
-            //         byte[] b = FillBuffer(synths[i]);
-            //         mix.AddMixerInput(new RawSourceWaveStream(new MemoryStream(b), new WaveFormat(44100, 16, 1)));
-                    
-            //     }
-            // }
-
-            // wo.Init(mix);
-            // wo.Play();
         }
 
-        public static short Mix(short v1, short v2)
+        public static short Mix(double v1, double v2)
         {
-            int v = v1 + v2;
+            double v = v1 + v2;
             // if (v1 != 0 && v2 != 0)
             //     v = v / 2;
             if (v > short.MaxValue)
@@ -130,8 +128,8 @@ namespace Synth_1
 
         private void Osc1Wave_DropDownClosed(object sender, EventArgs e)
         {
-            WaveType wt;
-            if (Osc1Wave.SelectedIndex >= 0)
+            
+            /*if (Osc1Wave.SelectedIndex >= 0)
             {
                 Enum.TryParse(Osc1Wave.Text.ToString(), out wt);
                 g1.SetWave(wt);
@@ -142,26 +140,14 @@ namespace Synth_1
                 Enum.TryParse(Osc1Wave.Text.ToString(), out wt);
                 g1.SetWave(wt);
             }
-
-        }
-
-        static byte[] FillBuffer(Synthezator s) 
-        {
-            byte[] buf = new byte[BUF_SIZE];
-            for (int i = 0; i < BUF_SIZE; i++)
-            {
-                short v = s.GetOut();
-                buf[i++] = (byte)(v & 0xFF);
-                buf[i] = (byte)(v >> 8);
-            }
-            return buf;
+*/
         }
 
 
         private void Osc2Wave_DropDownClosed(object sender, EventArgs e)
         {
-            WaveType wt;
-            if (Osc2Wave.SelectedIndex >= 0)
+           
+            /*if (Osc2Wave.SelectedIndex >= 0)
             {
                 Enum.TryParse(Osc2Wave.Text.ToString(), out wt);
                 g2.SetWave(wt);
@@ -171,7 +157,7 @@ namespace Synth_1
                 Osc2Wave.SelectedIndex = 0;
                 Enum.TryParse(Osc2Wave.Text.ToString(), out wt);
                 g2.SetWave(wt);
-            }
+            }*/
         }
     }
 }

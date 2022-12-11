@@ -11,7 +11,7 @@ namespace Synth_1
     /// <summary>
     /// 
     /// </summary>
-    public class Synthezator
+    public class Synthesator
     {
 
 
@@ -20,23 +20,25 @@ namespace Synth_1
         /// 
         /// </summary>
         private List<Generator> carriers = new List<Generator>();
-        long time;
+        private long time;
+
+        private double freq;
 
        
         /// <summary>
         /// 
         /// </summary>
         /// <param name="time"></param>
-        /// <returns>short int</returns>
-        public short GetOut()
+        /// <returns>double int</returns>
+        public double GetOut()
         {
-            short res = 0;
+            double res = 0;
             time++;
             for (int i = 0; i < carriers.Count; i++)
             {
                 res += carriers[i].GetOut();
             }
-            res = (short)(res / (short)carriers.Count);
+            res = (res / carriers.Count);
             return res;
         }
 
@@ -44,8 +46,9 @@ namespace Synth_1
         /// 
         /// </summary>
         /// <returns></returns>
-        public void Synthesator()
+        public Synthesator(double f)
         {
+            freq = f;
             time = 0;
         }
 
@@ -56,14 +59,8 @@ namespace Synth_1
         /// <returns></returns>
         public void AddCarrier(Generator carrier)
         {
+            carrier.SetFreq(freq);
             carriers.Add(carrier);
         }
-
-
-
-
-       
-
-
     }
 } 
