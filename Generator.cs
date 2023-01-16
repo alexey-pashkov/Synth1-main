@@ -44,29 +44,31 @@ namespace Synth_1
         /// <summary>
         /// 
         /// </summary>
-        Dictionary<WaveType, Out> dic;
+        private protected Dictionary<WaveType, Out> dic;
 
         /// <summary>
         /// 
         /// </summary>
-        WaveType waveType;
+        private protected WaveType waveType;
 
         /// <summary>
         /// 
         /// </summary>
-        private double Frequency;
+        private protected double Frequency;
+
+        private protected ADSR envelope;
 
         /// <summary>
         /// 
         /// </summary>
-        private short Amplitude = 7000;  
+        private protected short amp = 7000;
 
         /// <summary>
         /// 
         /// </summary>
-        private short Velocity;
+        private protected short Velocity;
 
-        private double phaseAngle = 0;
+        private protected double w = 0;
 
         #endregion
 
@@ -92,7 +94,13 @@ namespace Synth_1
         /// <returns></returns>
         public void SetWave(WaveType waveTypeIn)
         {
+
             waveType = waveTypeIn;
+        }
+
+        public virtual void SetADSR(ADSR env)
+        {
+            envelope = env;
         }
 
         /// <summary>
@@ -110,18 +118,19 @@ namespace Synth_1
         /// </summary>
         /// <param name="Amp"></param>
         /// <returns></returns>
-        public void SetAmplitude(short Amp)
+        public void Setamp(short Amp)
         {
-            Amplitude = Amp;
+            amp = Amp;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <returns>short int</returns>
-        public double GetOut()
+        /// <returns>double</returns>
+        public virtual double GetOut()
         {
-            return dic[waveType]();
+            double output = dic[waveType]()*envelope.Process();
+            return output;
         }
 
         /// <summary>
@@ -143,54 +152,54 @@ namespace Synth_1
 
 
         #region Private methods
-        private double Sine()
+        private protected double Sine()
         {
-            if (phaseAngle > 2 * Math.PI)
-                phaseAngle -= 2 * Math.PI;
+            if (w > 2 * Math.PI)
+                w -= 2 * Math.PI;
 
-            phaseAngle += 2 * Math.PI * Frequency / 44100;
+            w += 2 * Math.PI * Frequency / 44100;
 
-            return (Amplitude * Math.Sin(phaseAngle));
+            return (amp * Math.Sin(w));
         }
 
-        private double Saw()
+        private protected double Saw()
         {
-            if (phaseAngle > 2 * Math.PI)
-                phaseAngle -= 2 * Math.PI;
+            if (w > 2 * Math.PI)
+                w -= 2 * Math.PI;
 
-            phaseAngle += 2 * Math.PI * Frequency / 44100;
+            w += 2 * Math.PI * Frequency / 44100;
 
-            return (2 * Amplitude * Math.Asin(Math.Sin(phaseAngle)) / Math.PI);
+            return (2 * amp * Math.Asin(Math.Sin(w)) / Math.PI);
         }
 
-        private double Square()
+        private protected double Square()
         {
-            if (phaseAngle > 2 * Math.PI)
-                phaseAngle -= 2 * Math.PI;
+            if (w > 2 * Math.PI)
+                w -= 2 * Math.PI;
 
-            phaseAngle += 2 * Math.PI * Frequency / 44100;
+            w += 2 * Math.PI * Frequency / 44100;
 
-            return (Amplitude * Math.Sign(Math.Sin(phaseAngle)));
+            return (amp * Math.Sign(Math.Sin(w)));
         }
 
-        private double Triangle()
+        private protected double Triangle()
         {
-            if (phaseAngle > 2 * Math.PI)
-                phaseAngle -= 2 * Math.PI;
+            if (w > 2 * Math.PI)
+                w -= 2 * Math.PI;
 
-            phaseAngle += 2 * Math.PI * Frequency / 44100;
+            w += 2 * Math.PI * Frequency / 44100;
 
-            return (2 * Amplitude * (Math.PI / (2 - Math.Atan(Math.Tan(phaseAngle)))) / Math.PI);
+            return (2 * amp * (Math.PI / (2 - Math.Atan(Math.Tan(w)))) / Math.PI);
         }
 
-        private double Noise()
+        private protected double Noise()
         {
-            if (phaseAngle > 2 * Math.PI)
-                phaseAngle -= 2 * Math.PI;
+            if (w > 2 * Math.PI)
+                w -= 2 * Math.PI;
 
-            phaseAngle += 2 * Math.PI * Frequency / 44100;
+            w += 2 * Math.PI * Frequency / 44100;
 
-            return (Amplitude * (short)new Random().Next());
+            return (amp * (short)new Random().Next());
         }
         #endregion
     }

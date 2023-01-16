@@ -36,14 +36,20 @@ namespace Synth_1
 
         #region Public methods
 
+        public Carrier() : base()
+        {
+
+        }
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Time"></param>
+        /// <param></param>
         /// <returns>short int</returns>
-        public short[] GetOut(int Time)
+        public override double GetOut()
         {
-            throw new Exception("The method or operation is not implemented.");
+            this.Frequency = this.Frequency + modulator.GetOut();
+            return dic[waveType]();
         }
 
         /// <summary>
@@ -53,7 +59,7 @@ namespace Synth_1
         /// <returns></returns>
         public void SetModulator(Modulator modulator)
         {
-            throw new Exception("The method or operation is not implemented.");
+            this.modulator = modulator;
         }
 
         #endregion
