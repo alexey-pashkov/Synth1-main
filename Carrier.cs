@@ -49,7 +49,7 @@ namespace Synth_1
         public override double GetOut()
         {
             this.Frequency = this.Frequency + modulator.GetOut();
-            return dic[waveType]();
+            return dic[waveType]() * envelope.Process();
         }
 
         /// <summary>

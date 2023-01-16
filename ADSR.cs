@@ -29,7 +29,7 @@ namespace Synth_1
             sustain = s;
             release = r;
             coef = 0;
-            step = 1 / (441 * attak * 100);
+            step = 1 / (44100 * attak * 100);
             state = EnvelopeState.Attack;
         }
 
@@ -39,7 +39,7 @@ namespace Synth_1
             { 
                 case EnvelopeState.Attack:
                     coef += step;
-                    if(coef == 1)
+                    if(coef >= 1)
                     {
                         state = EnvelopeState.Decay;
                         step = 1 / (4410 * decay * 100);
@@ -47,7 +47,7 @@ namespace Synth_1
                     break;
                 case EnvelopeState.Decay:
                     coef -= step;
-                    if(coef == sustain)
+                    if(coef <= sustain)
                     {
                         state = EnvelopeState.Sustain;
                     }

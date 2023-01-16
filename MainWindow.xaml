@@ -69,14 +69,14 @@
         </ComboBox>
         <ComboBox x:Name="Devices" HorizontalAlignment="Center" Margin="0,52,0,0" VerticalAlignment="Top" Width="212" Height="22" SelectionChanged="Devices_SelectedIndexChanged"/>
         <ComboBox x:Name="Presets" HorizontalAlignment="Left" Margin="239,111,0,0" VerticalAlignment="Top" Width="212" Height="22" DropDownClosed="Presets_DropDownClosed"/>
-        <Slider x:Name="a1" HorizontalAlignment="Left" Margin="11,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="d1" HorizontalAlignment="Left" Margin="79,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="s1" HorizontalAlignment="Left" Margin="142,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="r1" HorizontalAlignment="Left" Margin="199,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="a2" HorizontalAlignment="Left" Margin="582,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="d2" HorizontalAlignment="Left" Margin="649,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="s2" HorizontalAlignment="Left" Margin="716,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
-        <Slider x:Name="r2" HorizontalAlignment="Left" Margin="771,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119"/>
+        <Slider x:Name="a1" HorizontalAlignment="Left" Margin="11,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" Maximum="1" LargeChange="0.1" Minimum="0.01" ValueChanged="atk1_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="d1" HorizontalAlignment="Left" Margin="79,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" LargeChange="0.1" Minimum="0.01" Maximum="1" ValueChanged="dc1_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="s1" HorizontalAlignment="Left" Margin="142,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" Maximum="1" Minimum="0.01" LargeChange="0.1" ValueChanged="sus1_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="r1" HorizontalAlignment="Left" Margin="199,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" LargeChange="0.1" Maximum="1" Minimum="0.01" ValueChanged="rls1_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="a2" HorizontalAlignment="Left" Margin="582,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" LargeChange="0.1" Maximum="1" Minimum="0.01" ValueChanged="atk2_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="d2" HorizontalAlignment="Left" Margin="649,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" Maximum="1" LargeChange="0.1" Minimum="0.01" ValueChanged="dc2_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="s2" HorizontalAlignment="Left" Margin="716,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" Maximum="1" LargeChange="0.1" Minimum="0.01" ValueChanged="sus2_Changed" Value="0.01" SmallChange="0.01"/>
+        <Slider x:Name="r2" HorizontalAlignment="Left" Margin="771,127,0,0" VerticalAlignment="Top" Width="20" Orientation="Vertical" Height="119" Minimum="0.01" LargeChange="0.1" Maximum="1" ValueChanged="rls2_Changed" Value="0.01" SmallChange="0.01"/>
         <Slider x:Name="Osc1V"  HorizontalAlignment="Left" Margin="21,300,0,0" VerticalAlignment="Top" Width="188" Height="36" Minimum="10" Maximum="32000" TickPlacement="Both" TickFrequency="3200" SmallChange="1"/>
         <Slider x:Name="Osc2V"  HorizontalAlignment="Left" Margin="589,300,0,0" VerticalAlignment="Top" Width="188" Height="36" Minimum="10" Maximum="32000" TickFrequency="3200" TickPlacement="Both" SmallChange="1"/>
         <Slider HorizontalAlignment="Center" Margin="0,351,0,0" VerticalAlignment="Top" Width="188" Height="18"/>

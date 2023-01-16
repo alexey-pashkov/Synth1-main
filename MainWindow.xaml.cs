@@ -25,7 +25,7 @@ namespace Synth_1
     /// </summary>
     public partial class MainWindow : Window
     {
-        const int BUF_SIZE = 441;
+        const int BUF_SIZE = 44100;
         ReadMidi midi;
         static Synthesator[] synths = new Synthesator[128];
         static WaveType wt;
@@ -33,6 +33,8 @@ namespace Synth_1
         bool chck1 = false;
         bool chck2 = false;
         double mf = 1;
+        double[] adsr1 = new double[4];
+        double[] adsr2 = new double[4];
         DirectSoundOut wo;
         private IWaveProvider provider;
         WaveFormat format;
@@ -62,8 +64,16 @@ namespace Synth_1
                 Presets.ItemsSource = temp;
             }
             wo = new DirectSoundOut();
-            // Thread play_tread = new Thread(()=>Play());
-            // play_tread.Start();
+           
+            adsr1[0] = a1.Value;
+            adsr1[1] = d1.Value;
+            adsr1[2] = s1.Value;
+            adsr1[3] = r1.Value;
+           
+            adsr2[0] = a2.Value;
+            adsr2[1] = d2.Value;
+            adsr2[2] = s2.Value;
+            adsr2[3] = r2.Value;
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
@@ -132,13 +142,13 @@ namespace Synth_1
                     Generator g1 = new Generator();
                     g1.Setamp(8000);
                     g1.SetWave(wt);
-                    g1.SetADSR(new ADSR(10, 1, 0.3, 3));
+                    g1.SetADSR(new ADSR(adsr1[0], adsr1[1], adsr1[2], adsr1[3]));
                     Generator g2 = new Generator();
                     g2.Setamp(8000);
                     g2.SetWave(wt2);
-                    g2.SetADSR(new ADSR(10, 5, 0.5, 3));
+                    g2.SetADSR(new ADSR(adsr2[0], adsr2[1], adsr2[2], adsr2[3]));
                     s.AddCarrier(g1);
-                    //s.AddCarrier(g2);
+                    s.AddCarrier(g2);
                 }
                 else
                 {
@@ -147,11 +157,12 @@ namespace Synth_1
                         Carrier c1 = new Carrier();
                         c1.Setamp(8000);
                         c1.SetWave(wt);
-                        c1.SetADSR(new ADSR(10, 5, 0.5, 3));
+                        c1.SetADSR(new ADSR(adsr2[0], adsr2[1], adsr2[2], adsr2[3]));
                         Modulator m1 = new Modulator();
                         m1.SetWave(wt2);
                         m1.SetFreq(freq);
                         m1.SetRatio(ref mf);
+                        m1.SetADSR(new ADSR(adsr1[0], adsr1[1], adsr1[2], adsr1[3]));
                         c1.SetModulator(m1);
 
                         s.AddCarrier(c1);
@@ -162,11 +173,12 @@ namespace Synth_1
                         Carrier c1 = new Carrier();
                         c1.Setamp(8000);
                         c1.SetWave(wt2);
-                        c1.SetADSR(new ADSR(10, 5, 0.5, 3));
+                        c1.SetADSR(new ADSR(adsr1[0], adsr1[1], adsr1[2], adsr1[3]));
                         Modulator m1 = new Modulator();
                         m1.SetWave(wt);
                         m1.SetFreq(freq);
                         m1.SetRatio(ref mf);
+                        m1.SetADSR(new ADSR(adsr2[0], adsr2[1], adsr2[2], adsr2[3]));
                         c1.SetModulator(m1);
                         s.AddCarrier(c1);
                        
@@ -366,6 +378,40 @@ namespace Synth_1
         private void Ratio_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             mf = Ratio.Value;
+        }
+
+        private void atk1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr1[0] = a1.Value;
+        }
+        private void dc1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr1[1] = d1.Value;
+        }
+        private void sus1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr1[2] = s1.Value;
+        }
+        private void rls1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr1[3] = r1.Value;
+        }
+
+        private void atk2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr2[0] = a2.Value;
+        }
+        private void dc2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr2[1] = d2.Value;
+        }
+        private void sus2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr2[2] = s2.Value;
+        }
+        private void rls2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            adsr2[3] = r2.Value;
         }
     }
 }
