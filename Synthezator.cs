@@ -65,5 +65,13 @@ namespace Synth_1
                 carriers.Add(carrier);
             }
         }
+
+        public void CallNoteOff(int id)
+        {
+            foreach (Generator carrier in carriers)
+            {
+                carrier.EnvelopeNoteOff(id);
+            }
+        }
     }
 } 

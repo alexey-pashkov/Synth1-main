@@ -55,7 +55,7 @@ namespace Synth_1
         /// <returns>double</returns>
         public override double GetOut()
         {
-            return Ratio * (dic[waveType]() / amp) * envelope.Process();
+            return Ratio * (dic[waveType]() / amp) * envelope.Process() * Velocity;
             
         }
 

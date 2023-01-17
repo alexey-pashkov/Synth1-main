@@ -66,7 +66,7 @@ namespace Synth_1
         /// <summary>
         /// 
         /// </summary>
-        private protected short Velocity;
+        private protected double Velocity = 1;
 
         private protected double w = 0;
 
@@ -118,7 +118,7 @@ namespace Synth_1
         /// </summary>
         /// <param name="Amp"></param>
         /// <returns></returns>
-        public void Setamp(short Amp)
+        public void Setamp(ref short Amp)
         {
             amp = Amp;
         }
@@ -129,7 +129,7 @@ namespace Synth_1
         /// <returns>double</returns>
         public virtual double GetOut()
         {
-            double output = dic[waveType]()*envelope.Process();
+            double output = dic[waveType]()*envelope.Process() * Velocity;
             return output;
         }
 
@@ -138,11 +138,15 @@ namespace Synth_1
         /// </summary>
         /// <param name="Velocity"></param>
         /// <returns></returns>
-        public void SetVelocity(short Vel)
+        public void SetVelocity(double Vel)
         {
             Velocity = Vel;
         }
 
+        public void EnvelopeNoteOff(int id)
+        {
+            envelope.KeyOff(id);
+        }
         #endregion
 
 

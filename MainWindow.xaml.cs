@@ -33,6 +33,8 @@ namespace Synth_1
         bool chck1 = false;
         bool chck2 = false;
         double mf = 1;
+        short amp1 = 8000;
+        short amp2 = 8000;
         double[] adsr1 = new double[4];
         double[] adsr2 = new double[4];
         DirectSoundOut wo;
@@ -132,30 +134,32 @@ namespace Synth_1
                 midi.InvokeMidiIn(0);
         }
 
-        public void NoteOn(double freq, int index)
+        public void NoteOn(double freq, int index, double vel)
         {
             if (synths[index] == null)
             {
                 Synthesator s = new Synthesator(freq);
-                if (!(bool)chck1 && !(bool)chck2)
+                if (!chck1 && !chck2)
                 {
                     Generator g1 = new Generator();
-                    g1.Setamp(8000);
+                    g1.Setamp(ref amp1);
                     g1.SetWave(wt);
+                    g1.SetVelocity(vel);
                     g1.SetADSR(new ADSR(adsr1[0], adsr1[1], adsr1[2], adsr1[3]));
                     Generator g2 = new Generator();
-                    g2.Setamp(8000);
+                    g2.Setamp(ref amp2);
                     g2.SetWave(wt2);
+                    g2.SetVelocity(vel);
                     g2.SetADSR(new ADSR(adsr2[0], adsr2[1], adsr2[2], adsr2[3]));
                     s.AddCarrier(g1);
                     s.AddCarrier(g2);
                 }
                 else
                 {
-                    if ((bool)chck2)
+                    if (chck2)
                     {
                         Carrier c1 = new Carrier();
-                        c1.Setamp(8000);
+                        c1.Setamp(ref amp2);
                         c1.SetWave(wt);
                         c1.SetADSR(new ADSR(adsr2[0], adsr2[1], adsr2[2], adsr2[3]));
                         Modulator m1 = new Modulator();
@@ -171,7 +175,7 @@ namespace Synth_1
                     else
                     {
                         Carrier c1 = new Carrier();
-                        c1.Setamp(8000);
+                        c1.Setamp(ref amp1);
                         c1.SetWave(wt2);
                         c1.SetADSR(new ADSR(adsr1[0], adsr1[1], adsr1[2], adsr1[3]));
                         Modulator m1 = new Modulator();
@@ -189,13 +193,12 @@ namespace Synth_1
             }
         }
 
-        public void NoteOff(double freq, int index)
+        public void NoteOff(int index)
         {
             if (synths[index] != null)
             {
-                synths[index] = null;
-                keysCount--;
-            }
+                synths[index].CallNoteOff(index);
+            }  
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
@@ -221,39 +224,6 @@ namespace Synth_1
                     wo.Play();
             }
         }
-
-        // private void Play()
-        // {
-        //     while(true)
-        //     {
-        //         if (keysCount != 0)
-        //         {
-        //             if (wo.PlaybackState == PlaybackState.Stopped)
-        //             {
-        //                 byte[] buf = new byte[BUF_SIZE*2];
-        //                 for (int i = 0; i < buf.Length/2; i++)
-        //                 {
-        //                     short v = 0;
-        //                     for (int j = 0; j < synths.Length; j++)
-        //                     {
-        //                         if (synths[j] != null)
-        //                             v = Mix(v, synths[j].GetOut());
-        //                     }
-
-        //                     buf[i*2] = (byte)(v & 0xFF);
-        //                     buf[i*2+1] = (byte)(v >> 8);
-        //                 }
-        //                 MemoryStream buff_stream = new MemoryStream(buf);
-        //                 provider = new RawSourceWaveStream(buff_stream, format);
-        //                 wo.Init(provider);
-        //                 if (provider != null)
-        //                     wo.Play();
-        //             }
-        //             //Thread.Sleep(5);
-        //         }
-        //     }
-                   
-        // }
 
         private static short Mix(double v1, double v2)
         {
@@ -346,6 +316,15 @@ namespace Synth_1
 
         }
 
+        static public void SynthsDispose(int index)
+        {
+            if (synths[index] != null)
+            {
+                synths[index] = null;
+                keysCount--;
+            }
+        }
+
         private void Osc1Wave_DropDownClosed(object sender, EventArgs e)
         {
             
@@ -412,6 +391,33 @@ namespace Synth_1
         private void rls2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr2[3] = r2.Value;
+        }
+
+        private void Osc1V_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            amp1 = (short)Osc1V.Value;
+        }
+        private void Osc2V_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            amp2 = (short)Osc2V.Value;
+        }
+        private void MasterV_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (chck2)
+            {
+                Osc1V.Maximum = MasterV.Value;
+                Osc2V.Maximum = MasterV.Value;
+            }
+            else if (chck1)
+            {
+                Osc1V.Maximum = MasterV.Value;
+                Osc2V.Maximum = MasterV.Value;
+            }
+            else
+            {
+                Osc1V.Maximum = MasterV.Value / 2;
+                Osc2V.Maximum = MasterV.Value / 2;
+            }
         }
     }
 }

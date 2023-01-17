@@ -19,6 +19,8 @@ namespace Synth_1
         double sustain;
         double release;
 
+        int index = 0;
+
         double step;
         double coef;
 
@@ -54,8 +56,22 @@ namespace Synth_1
                     break;
                 case EnvelopeState.Sustain:
                     return coef;
+                case EnvelopeState.Release:
+                    coef -= step;
+                    if (coef <= 0)
+                    {
+                        MainWindow.SynthsDispose(index);
+                    }
+                    break;
             }
             return coef;
+        }
+
+        public void KeyOff(int id)
+        {
+            step = 1 / (44100 * release * 100);
+            state = EnvelopeState.Release;
+            index = id;
         }
 
     }

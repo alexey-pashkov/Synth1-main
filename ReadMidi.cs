@@ -39,26 +39,26 @@ namespace Synth_1
 
             if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOn)
             {
-                (double f, int d, int v) = GetNote(e.RawMessage); 
-                mw.NoteOn(f, d);
+                (double f, int d, double v) = GetNote(e.RawMessage); 
+                mw.NoteOn(f, d, v);
             }
             if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOff)
             {
-                (double f, int d, int v) = GetNote(e.RawMessage);
-                mw.NoteOff(f, d);
+                (double f, int d, double v) = GetNote(e.RawMessage);
+                mw.NoteOff(d);
             }
         }
 
-        private (double, int, int) GetNote(int rm)
+        private (double, int, double) GetNote(int rm)
         {
             int data1 = (rm >> 8) & 0xFF;
             int data2 = (rm >> 16) & 0xFF;
             double d = (data1 - 69) / 12.0d;
             double freq = 440 * Math.Pow(2, d);
-            int vel = data2;
-            if (vel > 127)
+            double vel = data2 / 127.0d;
+            if (vel > 1)
             {
-                vel = 127;
+                vel = 1;
             }
             return (freq, data1, vel);
         }

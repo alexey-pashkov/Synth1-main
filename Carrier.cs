@@ -48,7 +48,7 @@ namespace Synth_1
         /// <returns>short int</returns>
         public override double GetOut()
         {
-            this.Frequency = this.Frequency + modulator.GetOut();
+            this.Frequency = this.Frequency + modulator.GetOut() * Velocity;
             return dic[waveType]() * envelope.Process();
         }
 
