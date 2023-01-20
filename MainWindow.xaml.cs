@@ -42,6 +42,7 @@ namespace Synth_1
         IWaveProvider provider;
         WaveFormat format;
         static int keysCount = 0;
+        string preset_path;
         List<string> presets = new List<string>();
 
 
@@ -55,17 +56,8 @@ namespace Synth_1
              timer.Tick += Timer1_Tick;
             timer.Start();
             Devices.ItemsSource = midi_handler.GetDevices().Select(x => x.Value);
-            string path = $"C:\\Users\\{Environment.UserName}\\Documents\\TestSynth\\Presets";
-            if (Directory.Exists(path))
-            {
-                presets = Directory.GetFiles(path).ToList();
-                List<string> temp = new List<string>();
-                foreach (string preset in presets)
-                {
-                    temp.Add(preset.Remove(0, preset.LastIndexOf("\\") + 1));
-                }
-                Presets.ItemsSource = temp;
-            }
+            preset_path = $"C:\\Users\\{Environment.UserName}\\Documents\\TestSynth\\Presets";
+            UpdatePresets(preset_path);
             waveout = new DirectSoundOut();
            
             adsr1[0] = a1.Value;
@@ -77,6 +69,20 @@ namespace Synth_1
             adsr2[1] = d2.Value;
             adsr2[2] = s2.Value;
             adsr2[3] = r2.Value;
+        }
+
+        private void UpdatePresets(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                presets = Directory.GetFiles(path).ToList();
+                List<string> temp = new List<string>();
+                foreach (string preset in presets)
+                {
+                    temp.Add(preset.Remove(0, preset.LastIndexOf("\\") + 1));
+                }
+                Presets.ItemsSource = temp;
+            }
         }
 
 
@@ -97,25 +103,26 @@ namespace Synth_1
 
         private void SavePreset_Click(object sender, RoutedEventArgs e)
         {
-            string path = $"C:\\Users\\{Environment.UserName}\\Documents\\TestSynth\\Presets";
-            if (!Directory.Exists(path))
+           
+            if (!Directory.Exists(preset_path))
             {
-                Directory.CreateDirectory(path);
+                Directory.CreateDirectory(preset_path);
             }
 
             SaveDialog sd = new SaveDialog();
             if (sd.ShowDialog() == true)
             {
-                if (!File.Exists(path + "\\" + sd.PresetName + ".txt"))
+                if (!File.Exists(preset_path + "\\" + sd.PresetName + ".txt"))
                 {
-                    using (File.Create(path + "\\" + sd.PresetName + ".txt"));
+                    using (File.Create(preset_path + "\\" + sd.PresetName + ".txt"));
+                    presets.Add(sd.PresetName);
                 }
                     if (!chck1 && !chck2)
                     {
                         string os1 = SetStr(Osc1Wave.Text.ToString(), a1.Value, d1.Value, s1.Value, r1.Value, Osc1V.Value) + '\n';
                         string os2 = SetStr(Osc2Wave.Text.ToString(), a2.Value, d2.Value, s2.Value, r2.Value, Osc2V.Value) + '\n';
-                        File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os1);
-                        File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os2);
+                        File.AppendAllText(preset_path + "\\" + sd.PresetName + ".txt", os1);
+                        File.AppendAllText(preset_path + "\\" + sd.PresetName + ".txt", os2);
                     }
                     else
                     {
@@ -123,17 +130,18 @@ namespace Synth_1
                         {
                             string os1 = SetStr(Osc1Wave.Text.ToString(), a1.Value, d1.Value, s1.Value, r1.Value, Osc1V.Value, Ratio.Value) + '\n';
                             string os2 = SetStr(Osc2Wave.Text.ToString(), a2.Value, d2.Value, s2.Value, r2.Value, Osc2V.Value) + '\n';
-                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os1);
-                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os2);
+                            File.AppendAllText(preset_path + "\\" + sd.PresetName + ".txt", os1);
+                            File.AppendAllText(preset_path + "\\" + sd.PresetName + ".txt", os2);
                         }
                         else
                         {
                             string os1 = SetStr(Osc1Wave.Text.ToString(), a1.Value, d1.Value, s1.Value, r1.Value, Osc1V.Value) + '\n';
                             string os2 = SetStr(Osc2Wave.Text.ToString(), a2.Value, d2.Value, s2.Value, r2.Value, Osc2V.Value, Ratio.Value) + '\n';
-                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os1);
-                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os2);
+                            File.AppendAllText(preset_path + "\\" + sd.PresetName + ".txt", os1);
+                            File.AppendAllText(preset_path + "\\" + sd.PresetName + ".txt", os2);
                         }
                     }
+                    UpdatePresets(preset_path);
             }
             
         }
@@ -284,12 +292,12 @@ namespace Synth_1
 
         private void Presets_DropDownClosed(object sender, EventArgs e)
         {
-            string path = $"C:\\Users\\{Environment.UserName}\\Documents\\TestSynth\\Presets";
-            if (Directory.Exists(path))
+            string preset_path = $"C:\\Users\\{Environment.UserName}\\Documents\\TestSynth\\Presets";
+            if (Directory.Exists(preset_path))
             {
-               if (File.Exists(path + "\\" + Presets.Text.ToString()))
+               if (File.Exists(preset_path + "\\" + Presets.Text.ToString()))
                {
-                    string[] temp = File.ReadAllLines(path + "\\" + Presets.Text.ToString());
+                    string[] temp = File.ReadAllLines(preset_path + "\\" + Presets.Text.ToString());
                     string[] st1 = temp[0].Split(" ");
                     string[] st2 = temp[1].Split(" ");
 
