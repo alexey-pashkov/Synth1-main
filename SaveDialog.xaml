@@ -5,16 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Synth_1"
         mc:Ignorable="d"
-        Title="SaveDialog" Height="189" Width="314">
+        ResizeMode="NoResize"
+        Title="SaveDialog" Height="189" Width="314" Background="#FF849595" Icon="/icn.jpg" ShowInTaskbar="False" FontFamily="Bodoni MT">
     <Grid Margin="0,0,0,-6">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5*"/>
             <ColumnDefinition Width="611*"/>
         </Grid.ColumnDefinitions>
         <Label Content="Enter the preset name:" Grid.Column="1" HorizontalAlignment="Left" Margin="8,10,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="PrNameBox" Grid.Column="1" HorizontalAlignment="Center" Margin="0,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="208" Height="18"/>
-        <Button x:Name="OK" Content="OK" Grid.Column="1" HorizontalAlignment="Left" Margin="184,90,0,0" VerticalAlignment="Top" Width="76" Click="OK_Click" IsDefault="True"/>
-        <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" HorizontalAlignment="Left" Margin="91,90,0,0" VerticalAlignment="Top" Width="86" IsCancel="True"/>
+        <TextBox x:Name="PrNameBox" Grid.Column="1" HorizontalAlignment="Center" Margin="0,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="208" Height="18" BorderThickness="2,2,2,2" BorderBrush="#FF757678"/>
+        <Button x:Name="OK" Content="OK" Grid.Column="1" HorizontalAlignment="Left" Margin="184,90,0,0" VerticalAlignment="Top" Width="76" Click="OK_Click" IsDefault="True" BorderBrush="#FF5D5B5B"/>
+        <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" HorizontalAlignment="Left" Margin="91,90,0,0" VerticalAlignment="Top" Width="86" Click="Cancel_Click" IsCancel="True" BorderBrush="#FF636161"/>
 
     </Grid>
 </Window>
