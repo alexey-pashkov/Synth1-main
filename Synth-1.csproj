@@ -12,8 +12,16 @@
     <ProjectGuid>{8AA37FD5-35EC-48E2-9865-251C0BA5B272}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="icn.jpg" />
+    <None Remove="src\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="NAudio">
       <Version>2.1.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icn.jpg" />
+    <Resource Include="src\background.jpg" />
   </ItemGroup>
 </Project>

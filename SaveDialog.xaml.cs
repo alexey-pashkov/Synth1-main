@@ -34,7 +34,7 @@ namespace Synth_1
 
         }
 
-        public string PrName
+        public string PresetName
         {
             get { return PrNameBox.Text; }
         }

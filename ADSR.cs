@@ -60,7 +60,7 @@ namespace Synth_1
                     coef -= step;
                     if (coef <= 0)
                     {
-                        MainWindow.SynthsDispose(index);
+                        MainWindow.DeleteSynth(index);
                     }
                     break;
             }

@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using NAudio.Wave;
+using NAudio.Midi;
 using NAudio.Wave.SampleProviders;
 
 namespace Synth_1
@@ -26,7 +27,7 @@ namespace Synth_1
     public partial class MainWindow : Window
     {
         const int BUF_SIZE = 44100;
-        ReadMidi midi;
+        MIDI midi_handler;
         static Synthesator[] synths = new Synthesator[128];
         static WaveType wt;
         static WaveType wt2;
@@ -37,8 +38,8 @@ namespace Synth_1
         short amp2 = 8000;
         double[] adsr1 = new double[4];
         double[] adsr2 = new double[4];
-        DirectSoundOut wo;
-        private IWaveProvider provider;
+        DirectSoundOut waveout;
+        IWaveProvider provider;
         WaveFormat format;
         static int keysCount = 0;
         List<string> presets = new List<string>();
@@ -46,14 +47,14 @@ namespace Synth_1
 
         public MainWindow()
         {
-            midi = new ReadMidi(this);
+            midi_handler = new MIDI();
             InitializeComponent();
             format = new WaveFormat(44100, 16, 1);           
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(10);
              timer.Tick += Timer1_Tick;
             timer.Start();
-            Devices.ItemsSource = midi.SelectDevice().Select(x => x.Value);
+            Devices.ItemsSource = midi_handler.GetDevices().Select(x => x.Value);
             string path = $"C:\\Users\\{Environment.UserName}\\Documents\\TestSynth\\Presets";
             if (Directory.Exists(path))
             {
@@ -65,7 +66,7 @@ namespace Synth_1
                 }
                 Presets.ItemsSource = temp;
             }
-            wo = new DirectSoundOut();
+            waveout = new DirectSoundOut();
            
             adsr1[0] = a1.Value;
             adsr1[1] = d1.Value;
@@ -78,9 +79,20 @@ namespace Synth_1
             adsr2[3] = r2.Value;
         }
 
-        private void Button1_Click(object sender, RoutedEventArgs e)
+
+        private void MessageRecived(object sender, MidiInMessageEventArgs e) 
         {
 
+            if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOn)
+            {
+                (double f, int d, double v) = midi_handler.ParseMessage(e.RawMessage); 
+                NoteOn(f, d, v);
+            }
+            if (e.MidiEvent.CommandCode == MidiCommandCode.NoteOff)
+            {
+                (double f, int d, double v) = midi_handler.ParseMessage(e.RawMessage);
+                NoteOff(d);
+            }
         }
 
         private void SavePreset_Click(object sender, RoutedEventArgs e)
@@ -94,16 +106,16 @@ namespace Synth_1
             SaveDialog sd = new SaveDialog();
             if (sd.ShowDialog() == true)
             {
-                if (!File.Exists(path + "\\" + sd.PrName + ".txt"))
+                if (!File.Exists(path + "\\" + sd.PresetName + ".txt"))
                 {
-                    using (File.Create(path + "\\" + sd.PrName + ".txt"));
+                    using (File.Create(path + "\\" + sd.PresetName + ".txt"));
                 }
                     if (!chck1 && !chck2)
                     {
                         string os1 = SetStr(Osc1Wave.Text.ToString(), a1.Value, d1.Value, s1.Value, r1.Value, Osc1V.Value) + '\n';
                         string os2 = SetStr(Osc2Wave.Text.ToString(), a2.Value, d2.Value, s2.Value, r2.Value, Osc2V.Value) + '\n';
-                        File.AppendAllText(path + "\\" + sd.PrName + ".txt", os1);
-                        File.AppendAllText(path + "\\" + sd.PrName + ".txt", os2);
+                        File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os1);
+                        File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os2);
                     }
                     else
                     {
@@ -111,15 +123,15 @@ namespace Synth_1
                         {
                             string os1 = SetStr(Osc1Wave.Text.ToString(), a1.Value, d1.Value, s1.Value, r1.Value, Osc1V.Value, Ratio.Value) + '\n';
                             string os2 = SetStr(Osc2Wave.Text.ToString(), a2.Value, d2.Value, s2.Value, r2.Value, Osc2V.Value) + '\n';
-                            File.AppendAllText(path + "\\" + sd.PrName + ".txt", os1);
-                            File.AppendAllText(path + "\\" + sd.PrName + ".txt", os2);
+                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os1);
+                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os2);
                         }
                         else
                         {
                             string os1 = SetStr(Osc1Wave.Text.ToString(), a1.Value, d1.Value, s1.Value, r1.Value, Osc1V.Value) + '\n';
                             string os2 = SetStr(Osc2Wave.Text.ToString(), a2.Value, d2.Value, s2.Value, r2.Value, Osc2V.Value, Ratio.Value) + '\n';
-                            File.AppendAllText(path + "\\" + sd.PrName + ".txt", os1);
-                            File.AppendAllText(path + "\\" + sd.PrName + ".txt", os2);
+                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os1);
+                            File.AppendAllText(path + "\\" + sd.PresetName + ".txt", os2);
                         }
                     }
             }
@@ -129,12 +141,12 @@ namespace Synth_1
         private void Devices_SelectedIndexChanged(object sender, RoutedEventArgs e)
         {
             if (Devices.SelectedIndex >= 0)
-                midi.InvokeMidiIn(Devices.SelectedIndex);
+                midi_handler.InvokeMidiIn(Devices.SelectedIndex, MessageRecived);
             else
-                midi.InvokeMidiIn(0);
+                midi_handler.InvokeMidiIn(0, MessageRecived);
         }
 
-        public void NoteOn(double freq, int index, double vel)
+        private void NoteOn(double freq, int index, double vel)
         {
             if (synths[index] == null)
             {
@@ -193,7 +205,7 @@ namespace Synth_1
             }
         }
 
-        public void NoteOff(int index)
+        private void NoteOff(int index)
         {
             if (synths[index] != null)
             {
@@ -219,17 +231,15 @@ namespace Synth_1
                 }
                 MemoryStream buff_stream = new MemoryStream(buf);
                 provider = new RawSourceWaveStream(buff_stream, format);
-                wo.Init(provider);
+                waveout.Init(provider);
                 if (provider != null)
-                    wo.Play();
+                    waveout.Play();
             }
         }
 
-        private static short Mix(double v1, double v2)
+        private short Mix(double v1, double v2)
         {
-            double v = v1 + v2;
-            // if (v1 != 0 && v2 != 0)
-            //     v = v / 2;
+            double v = (v1 + v2) / 2;
             if (v > short.MaxValue)
                 v = short.MaxValue;
             if (v < short.MinValue)
@@ -237,25 +247,25 @@ namespace Synth_1
             return (short)v;
         }
 
-        private void checkBox1_Checked(object sender, RoutedEventArgs e)
+        private void CheckBox1_Checked(object sender, RoutedEventArgs e)
         {
             chck1 = true;
             checkBox2.IsEnabled = false;
         }
 
-        private void checkBox1_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckBox1_Unchecked(object sender, RoutedEventArgs e)
         {
             chck1 = false;
             checkBox2.IsEnabled = true;
         }
 
-        private void checkBox2_Checked(object sender, RoutedEventArgs e)
+        private void CheckBox2_Checked(object sender, RoutedEventArgs e)
         {
             chck2 = true;
             checkBox1.IsEnabled = false;
         }
 
-        private void checkBox2_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckBox2_Unchecked(object sender, RoutedEventArgs e)
         {
             chck2 = false;
             checkBox1.IsEnabled = true;
@@ -316,7 +326,7 @@ namespace Synth_1
 
         }
 
-        static public void SynthsDispose(int index)
+        static public void DeleteSynth(int index)
         {
             if (synths[index] != null)
             {
@@ -359,36 +369,36 @@ namespace Synth_1
             mf = Ratio.Value;
         }
 
-        private void atk1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Atk1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr1[0] = a1.Value;
         }
-        private void dc1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Dc1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr1[1] = d1.Value;
         }
-        private void sus1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Sus1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr1[2] = s1.Value;
         }
-        private void rls1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Rls1_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr1[3] = r1.Value;
         }
 
-        private void atk2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Atk2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr2[0] = a2.Value;
         }
-        private void dc2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Dc2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr2[1] = d2.Value;
         }
-        private void sus2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Sus2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr2[2] = s2.Value;
         }
-        private void rls2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Rls2_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             adsr2[3] = r2.Value;
         }
@@ -403,20 +413,39 @@ namespace Synth_1
         }
         private void MasterV_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            double temp = 0;
             if (chck2)
             {
+                temp = Osc1V.Value;
                 Osc1V.Maximum = MasterV.Value;
+                if (temp > Osc1V.Maximum)
+                    Osc1V.Value = Osc1V.Maximum;
+                temp = Osc2V.Value;
                 Osc2V.Maximum = MasterV.Value;
+                if (temp > MasterV.Value)
+                    Osc2V.Value = Osc2V.Maximum;
             }
             else if (chck1)
             {
+                temp = Osc1V.Value;
                 Osc1V.Maximum = MasterV.Value;
+                if (temp > Osc1V.Maximum)
+                    Osc1V.Value = Osc1V.Maximum;
+                temp = Osc2V.Value; 
                 Osc2V.Maximum = MasterV.Value;
+                if (temp > Osc2V.Maximum)
+                    Osc2V.Value = Osc1V.Maximum;
             }
             else
             {
+                temp = Osc1V.Value;
                 Osc1V.Maximum = MasterV.Value / 2;
+                if (temp > Osc1V.Maximum)
+                    Osc1V.Value = Osc1V.Maximum;
+                temp = Osc2V.Value;
                 Osc2V.Maximum = MasterV.Value / 2;
+                if (temp > Osc2V.Maximum)
+                    Osc2V.Value = Osc2V.Maximum;
             }
         }
     }
